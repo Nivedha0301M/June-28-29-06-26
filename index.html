@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"The Department of Atomic Energy (DAE) recently inaugurated the world's first Hydrogen Production Facility based on the Copper–Chlorine (Cu–Cl) Thermochemical Cycle. This landmark facility has been established at:", options:["Bhabha Atomic Research Centre (BARC), Trombay, Maharashtra","Indira Gandhi Centre for Atomic Research (IGCAR), Kalpakkam, Tamil Nadu","Nuclear Fuel Complex (NFC), Hyderabad, Telangana","Raja Ramanna Centre for Advanced Technology (RRCAT), Indore, Madhya Pradesh"], answer:1},
+
+{q:"The world's first Hydrogen Production Facility inaugurated by the Department of Atomic Energy (DAE) is based on which technology?", options:["Proton Exchange Membrane (PEM) Electrolysis","Alkaline Water Electrolysis","Copper–Chlorine (Cu–Cl) Thermochemical Cycle","Solid Oxide Electrolysis Cell (SOEC)"], answer:2},
+
+{q:"The world's first nuclear process heat-based Hydrogen Production Facility at Kalpakkam was inaugurated by:", options:["Homi N. Sethna","Ajit Kumar Mohanty","Anil Kakodkar","K.N. Vyas"], answer:1},
+
+{q:"The Hydrogen Production Facility at the Indira Gandhi Centre for Atomic Research (IGCAR) was jointly commissioned by:", options:["Nuclear Power Corporation of India Limited (NPCIL) and IGCAR","Bhabha Atomic Research Centre (BARC) and Indira Gandhi Centre for Atomic Research (IGCAR)","Department of Science and Technology (DST) and BARC","Indian Rare Earths Limited (IREL) and IGCAR"], answer:1},
+
+{q:"The Department of Atomic Energy (DAE), which inaugurated the world's first nuclear process heat-based Hydrogen Production Facility, is headquartered in:", options:["Chennai","New Delhi","Hyderabad","Mumbai"], answer:3},
+
+{q:"The Bhabha Atomic Research Centre (BARC), which indigenously developed the Hydrogen Production Facility in collaboration with IGCAR, is headquartered at:", options:["Kalpakkam, Tamil Nadu","Trombay, Mumbai","Hyderabad, Telangana","Tarapur, Maharashtra"], answer:1},
+
+{q:"Who is widely regarded as the Father of India's Nuclear Programme?", options:["Vikram Sarabhai","Raja Ramanna","Homi Jehangir Bhabha","Homi N. Sethna"], answer:2},
+
+{q:"Amazon recently announced a major investment in India by 2030. What is the total value of the proposed investment?", options:["USD 35 Billion","USD 40 Billion","USD 48 Billion","USD 50 Billion"], answer:2},
+
+{q:"The primary objective of Amazon's proposed USD 48 Billion investment in India is to strengthen its:", options:["Renewable energy business only","Semiconductor manufacturing operations","E-commerce, Artificial Intelligence (AI), cloud computing and logistics businesses","Financial services and insurance operations"], answer:2},
+
+{q:"Amazon's latest investment announcement was made following a meeting between Prime Minister Narendra Modi and:", options:["Jeff Bezos","Andy Jassy","David Limp","Adam Selipsky"], answer:1},
+
+{q:"Out of Amazon's proposed USD 48 Billion investment in India, approximately how much has been earmarked specifically for Artificial Intelligence (AI) and cloud infrastructure?", options:["USD 10 Billion","USD 13 Billion","USD 18 Billion","USD 20 Billion"], answer:1},
+
+{q:"Amazon Web Services (AWS) plans to expand its data centre infrastructure in which pair of Indian cities?", options:["Bengaluru and Chennai","Pune and Hyderabad","Mumbai and Hyderabad","Noida and Kolkata"], answer:2},
+
+{q:"Amazon, which recently announced a major investment in India, was founded in:", options:["1992","1994","1996","1998"], answer:1},
+
+{q:"Who is the founder of Amazon?", options:["Andy Jassy","Larry Page","Jeff Bezos","Marc Benioff"], answer:2},
+
+{q:"Herbalife International India Private Limited, in collaboration with the Indian Institute of Technology Madras (IIT-M), has launched India's first Centre of Excellence (CoE) dedicated to:", options:["Biotechnology-based vaccine production","Plant Cell Fermentation Technology","Precision Agriculture","Genetically Modified Crops"], answer:1},
+
+{q:"India's first Centre of Excellence (CoE) on Plant Cell Fermentation Technology has been established at:", options:["IIT Bombay Research Park","IIT Madras Research Park, Chennai","IISc Bengaluru Innovation Hub","CSIR-Central Food Technological Research Institute, Mysuru"], answer:1},
+
+{q:"The Centre of Excellence (CoE) on Plant Cell Fermentation Technology is expected to serve as a national hub for:", options:["Artificial Intelligence policy formulation","Research and Development (R&D) in Plant Cell Fermentation","Space biotechnology missions","Marine biotechnology research"], answer:1},
+
+{q:"The Indian Institute of Technology Bombay (IIT Bombay) recently signed a Letter of Intent (LoI) with which international institution to strengthen collaboration in engineering, Artificial Intelligence (AI), multidisciplinary research and higher education?", options:["University of California, Berkeley","Massachusetts Institute of Technology (MIT)","State University of New York (SUNY) Old Westbury","University of Oxford"], answer:2},
+
+{q:"The Letter of Intent (LoI) between IIT Bombay and SUNY Old Westbury was signed on behalf of IIT Bombay by:", options:["V. Kamakoti","Shireesh Kedare","Bhaskar Ramamurthi","Subhasis Chaudhuri"], answer:1},
+
+{q:"The State University of New York (SUNY), with which IIT Bombay signed a Letter of Intent (LoI), is recognised as:", options:["The oldest private university system in the United States","The largest public university system in the United States","The largest technical university in Europe","The oldest engineering university in North America"], answer:1},
+
+{q:"The Times Higher Education (THE), in collaboration with the University of Manchester, recently released the Sustainability Impact Ratings 2026. Which edition of these global sustainability rankings was released in 2026?", options:["6th Edition","7th Edition","8th Edition","9th Edition"], answer:2},
+
+{q:"According to the Times Higher Education (THE) Sustainability Impact Ratings 2026, which country secured the top overall position in the global rankings?", options:["United States","Australia","United Kingdom","Canada"], answer:2},
+
+{q:"The Manipal Academy of Higher Education (MAHE) achieved global recognition in the THE Sustainability Impact Ratings 2026 by securing the No.1 rank under which United Nations Sustainable Development Goal (SDG)?", options:["SDG-3 – Good Health and Well-being","SDG-4 – Quality Education","SDG-5 – Gender Equality","SDG-13 – Climate Action"], answer:2},
+
+{q:"Which of the following countries was among the new entrants included for the first time in the THE Sustainability Impact Ratings 2026?", options:["Bhutan","Tajikistan","Mongolia","Nepal"], answer:1},
+
+{q:"The Manipal Academy of Higher Education (MAHE), which secured the top global ranking under SDG-5 in the THE Sustainability Impact Ratings 2026, is located in:", options:["Mysuru, Karnataka","Bengaluru, Karnataka","Manipal, Karnataka","Hubballi, Karnataka"], answer:2},
+
+{q:"The Reserve Bank of India (RBI) recently issued the 'RBI (Non-Banking Financial Companies (NBFC) – Registration, Exemptions and Framework for Scale Based Regulation) Second Amendment Directions, 2026'. The primary purpose of these revised directions is to:", options:["Merge NBFCs with commercial banks","Identify Upper Layer Non-Banking Financial Companies (NBFC-ULs)","Introduce digital-only banking licences","Regulate cooperative banks under RBI"], answer:1},
+
+{q:"According to the revised RBI framework, Non-Banking Financial Companies (NBFCs) having an asset size of at least:", options:["Rs.50,000 crore","Rs.75,000 crore","Rs.1 lakh crore","Rs.1.5 lakh crore"], answer:2},
+
+{q:"The revised RBI directions relating to the classification of Upper Layer Non-Banking Financial Companies (NBFC-ULs) came into effect from:", options:["April 1, 2026","May 1, 2026","June 24, 2026","July 1, 2026"], answer:2},
+
+{q:"Under the revised Reserve Bank of India (RBI) framework, the review of Upper Layer Non-Banking Financial Companies (NBFC-ULs) will now be undertaken at what interval?", options:["Every year","Every two years","Every three years","Every five years"], answer:2},
+
+{q:"The Reserve Bank of India (RBI), which recently revised the NBFC Upper Layer Framework, was established on:", options:["1 April 1934","1 April 1935","1 January 1949","26 January 1950"], answer:1},
+
+{q:"The Asian Development Bank (ADB) has approved a USD 42.2 million Small Expenditure Financing Facility (SEFF) to strengthen which sector in the North Eastern Region (NER) of India?", options:["Tea plantation and exports","Bamboo industry and value chain development","Rubber cultivation and processing","Medicinal plant cultivation"], answer:1},
+
+{q:"The ADB-funded bamboo development project in the North Eastern Region is aligned with which flagship Government of India initiative?", options:["National Livelihood Mission (NLM)","National Bamboo Mission (NBM)","Mission for Integrated Development of Horticulture (MIDH)","PM Formalisation of Micro Food Processing Enterprises (PM-FME)"], answer:1},
+
+{q:"Which of the following States is NOT among the six North Eastern States covered under the ADB-supported bamboo industry development project?", options:["Assam","Nagaland","Arunachal Pradesh","Tripura"], answer:2},
+
+{q:"As part of the ADB-supported bamboo industry project, what specific women empowerment measure has been proposed?", options:["Reservation of 50% jobs for women in bamboo parks","One women-led manufacturing facility in each of the six target North Eastern States","Free bamboo cultivation kits for all women farmers","Establishment of women-only export zones"], answer:1},
+
+{q:"The Asian Development Bank (ADB), which approved the USD 42.2 million loan for the bamboo industry, is headquartered in:", options:["Tokyo, Japan","Bangkok, Thailand","Manila, Philippines","Singapore"], answer:2},
+
+{q:"The World Meteorological Organization (WMO) recently announced the recipient of the 71st International Meteorological Organization (IMO) Prize. The prestigious award has been conferred upon:", options:["Celeste Saulo","Florence Rabier","Petteri Taalas","Michael J. Brennan"], answer:1},
+
+{q:"French meteorologist Dr. Florence Rabier has been honoured with the 71st IMO Prize primarily for her pioneering contributions to:", options:["Climate finance and carbon accounting","Numerical weather prediction and operational meteorology","Satellite launch technology","Ocean circulation modelling"], answer:1},
+
+{q:"Dr. Florence Rabier will formally receive the International Meteorological Organization (IMO) Prize and deliver the IMO Prize Lecture during:", options:["COP-32 in 2026","20th World Meteorological Congress (Cg-20) in 2027","United Nations Climate Summit 2026","Global Weather Forum 2027"], answer:1},
+
+{q:"The World Meteorological Organization (WMO), which announced the 71st IMO Prize, was established in:", options:["1945","1948","1950","1952"], answer:2},
+
+{q:"The World Meteorological Organization (WMO) functions as a specialised agency of which international organisation?", options:["World Bank Group","United Nations (UN)","International Monetary Fund (IMF)","World Trade Organization (WTO)"], answer:1},
+
+{q:"Jaime Abelardo de la Espriella was recently elected as the President of which country after winning the Presidential Election and defeating Iván Cepeda?", options:["Chile","Colombia","Peru","Ecuador"], answer:1},
+
+{q:"In the recently concluded Colombia Presidential Election, Jaime Abelardo de la Espriella defeated which of the following candidates?", options:["Gustavo Petro","José Manuel Restrepo Abondano","Iván Cepeda","Sergio Fajardo"], answer:2},
+
+{q:"Jaime Abelardo de la Espriella, who recently won Colombia's Presidential Election, succeeded:", options:["Juan Manuel Santos","Iván Duque","Gustavo Petro","Álvaro Uribe"], answer:2},
+
+{q:"Who has been elected as the Vice President of Colombia alongside President-elect Jaime Abelardo de la Espriella?", options:["Iván Cepeda","José Manuel Restrepo Abondano","Marta Lucía Ramírez","Francia Márquez"], answer:1},
+
+{q:"The capital city of Colombia, where Jaime Abelardo de la Espriella was elected President, is:", options:["Quito","Lima","Bogotá","Caracas"], answer:2},
+
+{q:"Dr. U.P. Rajeev has recently been appointed as the Director of which premier centre functioning under the Indian Space Research Organisation (ISRO)?", options:["Satish Dhawan Space Centre (SDSC)","Vikram Sarabhai Space Centre (VSSC)","U. R. Rao Satellite Centre (URSC)","Liquid Propulsion Systems Centre (LPSC)"], answer:1},
+
+{q:"The Vikram Sarabhai Space Centre (VSSC), whose new Director is Dr. U.P. Rajeev, is located at:", options:["Sriharikota, Andhra Pradesh","Bengaluru, Karnataka","Thiruvananthapuram, Kerala","Mahendragiri, Tamil Nadu"], answer:2},
+
+{q:"Dr. U.P. Rajeev, who has been appointed Director of the Vikram Sarabhai Space Centre (VSSC), succeeded:", options:["S. Somanath","V. Narayanan","Dr. A. Rajarajan","M. Sankaran"], answer:2},
+
+{q:"The Vikram Sarabhai Space Centre (VSSC) functions under which parent organisation?", options:["Defence Research and Development Organisation (DRDO)","Indian National Centre for Space Promotion and Authorization (IN-SPACe)","Indian Space Research Organisation (ISRO)","National Remote Sensing Centre (NRSC)"], answer:2},
+
+{q:"The Indian Space Research Organisation (ISRO) was established in:", options:["1962","1965","1969","1972"], answer:2},
+
+{q:"The 5th International Shooting Sport Federation (ISSF) Junior World Championship Rifle/Pistol/Shotgun 2026 was hosted by:", options:["Italy","France","Germany","Switzerland"], answer:2},
+
+{q:"Which city hosted the ISSF Junior World Championship Rifle/Pistol/Shotgun 2026, where India finished at the top of the medal tally?", options:["Munich","Berlin","Suhl","Frankfurt"], answer:2},
+
+{q:"India finished at the top of the medal tally in the ISSF Junior World Championship 2026 with a total of:", options:["22 medals","24 medals","25 medals","27 medals"], answer:2},
+
+{q:"How many Gold Medals did India win at the ISSF Junior World Championship 2026?", options:["5","6","7","8"], answer:2},
+
+{q:"Which contingent secured the second position in the medal tally at the ISSF Junior World Championship 2026?", options:["Italy","China","Individual Neutral Athletes (AIN)","Germany"], answer:2},
+
+{q:"The International Shooting Sport Federation (ISSF), which organised the Junior World Championship, is headquartered in:", options:["Lausanne, Switzerland","Munich, Germany","Vienna, Austria","Rome, Italy"], answer:1},
+
+{q:"Veteran Tamil filmmaker, actor, screenwriter and director Krishnaswamy Bhagyaraj, popularly known as K. Bhagyaraj, who recently passed away at the age of 73, was popularly known by which title?", options:["Master of Dialogues","Screenplay King","King of Comedy","People's Director"], answer:1},
+
+{q:"K. Bhagyaraj began his film career as an assistant director under which renowned filmmaker before making his acting debut in 16 Vayathinile (1977)?", options:["K. Balachander","Bharathiraja","Mani Ratnam","Balu Mahendra"], answer:1},
+
+{q:"The memoir titled \"The Second Orbit: Belief of a Man… Dreams of 1.4 Billion Hearts\" has been authored by:", options:["Rakesh Sharma","Gaganyaan Mission Team","Group Captain Shubhanshu Shukla","Air Chief Marshal Amar Preet Singh"], answer:2},
+
+{q:"The memoir \"The Second Orbit: Belief of a Man… Dreams of 1.4 Billion Hearts\" was released by Air Chief Marshal (ACM) Amar Preet Singh to commemorate:", options:["India's first human spaceflight mission","Chandrayaan-3 mission","The first anniversary of Group Captain Shubhanshu Shukla's Axiom-4 mission to the International Space Station","The launch of the Gaganyaan Test Flight Mission"], answer:2},
+
+{q:"The memoir \"The Second Orbit: Belief of a Man… Dreams of 1.4 Billion Hearts\" was published under which publishing house?", options:["HarperCollins India","Penguin Random House India (Vintage Books)","Rupa Publications","Westland Books"], answer:1},
+
+{q:"The book titled \"Sanskritir Ratna Bhandar: Bhaowaiyar Itibritto\" was released by Vice President C. P. Radhakrishnan at:", options:["Rashtrapati Bhavan, New Delhi","Parliament House, New Delhi","Uprashtrapati Bhavan, New Delhi","India International Centre, New Delhi"], answer:2},
+
+{q:"Who is the author of the book \"Sanskritir Ratna Bhandar: Bhaowaiyar Itibritto\"?", options:["Jayanta Kumar Roy","Sangita Roy","C. P. Radhakrishnan","Anurag Thakur"], answer:0},
+
+{q:"The book \"Sanskritir Ratna Bhandar: Bhaowaiyar Itibritto\" is primarily associated with documenting the historical journey of:", options:["Bharatanatyam","Kathak","Bhawaiya","Baul Music"], answer:2},
+
+{q:"World Refrigeration Day (WRD) is observed every year on:", options:["24 June","25 June","26 June","27 June"], answer:2},
+
+{q:"The theme of World Refrigeration Day 2026 is:", options:["Cooling for All","Cool Intelligence","Green Cooling Revolution","Sustainable Refrigeration"], answer:1},
+
+{q:"World Refrigeration Day aims to create awareness about the importance of which technologies?", options:["Solar and Wind Technologies","Refrigeration, Air-Conditioning and Heat Pump (RACHP) Technologies","Hydrogen Fuel Technologies","Nuclear Cooling Systems"], answer:1},
+
+{q:"World Refrigeration Day was first observed globally in:", options:["2017","2018","2019","2020"], answer:2},
+
+{q:"International Day of Deafblindness is observed every year on:", options:["25 June","26 June","27 June","28 June"], answer:2},
+
+{q:"The primary objective of observing the International Day of Deafblindness is to:", options:["Promote awareness about hearing impairment only","Promote awareness about visual impairment only","Promote global awareness about deafblindness as a unique disability","Support rehabilitation of accident victims"], answer:2},
+
+{q:"According to the 2026 observance schedule, Deafblind International Awareness Week is celebrated from:", options:["24 June to 30 June 2026","25 June to 1 July 2026","26 June to 2 July 2026","27 June to 3 July 2026"], answer:1},
+
+{q:"The International Day of Deafblindness was observed for the first time in:", options:["2023","2024","2025","2026"], answer:2},
+
+{q:"Who has recently been appointed as the new Chief Secretary of Telangana?", options:["K. Ramakrishna Rao","Sanjay Jaju","A. Revanth Reddy","Jishnu Dev Varma"], answer:1},
+
+{q:"Sanjay Jaju, recently appointed as the Chief Secretary of Telangana, belongs to which batch of the Indian Administrative Service (IAS)?", options:["1990","1991","1992","1993"], answer:2},
+
+{q:"Sanjay Jaju has been appointed as the Chief Secretary of Telangana after succeeding:", options:["Somesh Kumar","A. Santhi Kumari","K. Ramakrishna Rao","Rajiv Sharma"], answer:2},
+
+{q:"The capital of Telangana, where Sanjay Jaju has been appointed as the new Chief Secretary, is:", options:["Warangal","Hyderabad","Secunderabad","Karimnagar"], answer:1},
+
+{q:"Telangana was officially formed as a separate State on:", options:["1 May 2014","2 June 2014","15 August 2014","26 January 2015"], answer:1},
+
+{q:"Who is the present Governor of Telangana?", options:["Tamilisai Soundararajan","Bandaru Dattatreya","Jishnu Dev Varma","C. P. Radhakrishnan"], answer:2},
+
+{q:"Who is the present Chief Minister of Telangana?", options:["K. Chandrashekar Rao","A. Revanth Reddy","Etela Rajender","Bhatti Vikramarka"], answer:1},
+
+{q:"The official currency of Colombia, where Jaime Abelardo de la Espriella was recently elected President, is:", options:["US Dollar","Colombian Peso","Boliviano","Nuevo Sol"], answer:1},
+
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
